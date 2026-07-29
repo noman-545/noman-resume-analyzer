@@ -19,7 +19,7 @@ import { FirebaseConfigurationError, verifyGoogleToken } from './server/firebase
 import { swaggerSpec } from './server/swaggerSpec.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Ensure Uploads directory exists
 const UPLOADS_DIR = path.join(process.cwd(), 'Uploads');
