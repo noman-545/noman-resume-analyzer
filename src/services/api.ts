@@ -1,7 +1,17 @@
-import { User, LoginResponse, Resume, Analysis, ApiErrorResponse } from '../types';
+
+import { User, LoginResponse, Resume, Analysis } from '../types';
 
 const TOKEN_KEY = 'ai_resume_analyzer_token';
 const USER_KEY = 'ai_resume_analyzer_user';
+
+// ===============================
+// ===============================
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  'https://noman-resume-analyzer.onrender.com';
+// ===============================
+// Local Storage
+// ===============================
 
 export function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -9,6 +19,7 @@ export function getStoredToken(): string | null {
 
 export function setStoredToken(token: string, user?: User): void {
   localStorage.setItem(TOKEN_KEY, token);
+
   if (user) {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
@@ -21,7 +32,9 @@ export function clearStoredAuth(): void {
 
 export function getStoredUser(): User | null {
   const raw = localStorage.getItem(USER_KEY);
+
   if (!raw) return null;
+
   try {
     return JSON.parse(raw) as User;
   } catch {
@@ -29,38 +42,51 @@ export function getStoredUser(): User | null {
   }
 }
 
-async function parseResponseJson(res: Response, defaultErrorMsg: string): Promise<any> {
+async function parseResponseJson(
+  res: Response,
+  defaultErrorMsg: string
+): Promise<any> {
   const text = await res.text();
+
   let data: any;
+
   try {
     data = JSON.parse(text);
   } catch {
     if (!res.ok) {
-      throw new Error(`Server request failed (${res.status}): ${res.statusText || defaultErrorMsg}`);
+      throw new Error(
+        `Server request failed (${res.status}): ${
+          res.statusText || defaultErrorMsg
+        }`
+      );
     }
+
     throw new Error('Received unexpected non-JSON response from server');
   }
 
   if (!res.ok) {
     throw new Error(data.message || defaultErrorMsg);
   }
+
   return data;
 }
 
-async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+async function authFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
   const token = getStoredToken();
+
   const headers = new Headers(options.headers || {});
 
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const updatedOptions: RequestInit = {
+  const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers,
-  };
-
-  const response = await fetch(url, updatedOptions);
+  });
 
   if (response.status === 401) {
     clearStoredAuth();
@@ -74,21 +100,36 @@ export const api = {
   // Authentication
   // ==========================
 
-  async register(name: string, email: string, password: string): Promise<{ success: boolean; message: string }> {
-    const res = await fetch('/api/auth/register', {
+  async register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; message: string }> {
+    const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
     });
 
     return parseResponseJson(res, 'Registration failed');
   },
 
   async login(email: string, password: string): Promise<LoginResponse> {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     });
 
     const data = await parseResponseJson(res, 'Login failed');
@@ -98,9 +139,8 @@ export const api = {
     return data;
   },
 
-  // ✅ NEW GOOGLE LOGIN METHOD
   async googleLogin(idToken: string): Promise<LoginResponse> {
-    const res = await fetch('/api/auth/google', {
+    const res = await fetch(`${API_BASE}/api/auth/google`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -119,25 +159,34 @@ export const api = {
 
   async getMe(): Promise<User> {
     const res = await authFetch('/api/auth/me');
-    const data = await parseResponseJson(res, 'Failed to authenticate token');
+
+    const data = await parseResponseJson(
+      res,
+      'Failed to authenticate token'
+    );
+
     return data.user;
   },
 
   // ==========================
-  // Resume APIs
+  // Resume
   // ==========================
 
   async getResumes(): Promise<Resume[]> {
     const res = await authFetch('/api/resume');
+
     return parseResponseJson(res, 'Failed to fetch resumes');
   },
 
-  async uploadResume(file: File, jobDescription?: string): Promise<{ id: number; message: string; fileName: string }> {
+  async uploadResume(
+    file: File,
+    jobDescription?: string
+  ): Promise<{ id: number; message: string; fileName: string }> {
     const formData = new FormData();
 
     formData.append('resume.pdf', file);
 
-    if (jobDescription && jobDescription.trim()) {
+    if (jobDescription?.trim()) {
       formData.append('jobDescription', jobDescription.trim());
     }
 
@@ -149,7 +198,10 @@ export const api = {
     return parseResponseJson(res, 'Upload failed');
   },
 
-  async generateSampleResume(): Promise<{ id: number; message: string }> {
+  async generateSampleResume(): Promise<{
+    id: number;
+    message: string;
+  }> {
     const res = await authFetch('/api/sample-resume', {
       method: 'POST',
     });
@@ -159,10 +211,13 @@ export const api = {
 
   async getResume(id: number): Promise<Resume> {
     const res = await authFetch(`/api/resume/${id}`);
+
     return parseResponseJson(res, 'Failed to fetch resume metadata');
   },
 
-  async deleteResume(id: number): Promise<{ success: boolean; message: string }> {
+  async deleteResume(
+    id: number
+  ): Promise<{ success: boolean; message: string }> {
     const res = await authFetch(`/api/resume/${id}`, {
       method: 'DELETE',
     });
@@ -171,10 +226,13 @@ export const api = {
   },
 
   // ==========================
-  // Analysis APIs
+  // Analysis
   // ==========================
 
-  async analyzeResume(resumeId: number, jobDescription?: string): Promise<Analysis> {
+  async analyzeResume(
+    resumeId: number,
+    jobDescription?: string
+  ): Promise<Analysis> {
     const res = await authFetch(`/api/analysis/${resumeId}`, {
       method: 'POST',
       headers: {
