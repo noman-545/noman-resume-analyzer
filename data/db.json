@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Noman",
+      "email": "nomanahmed0412@gmail.com",
+      "passwordHash": "$2b$10$HjDBYt4qtTsFu/SipLxmOOv.ANbm12.U4QaZLxIlhRHTH0Kgny.Bi",
+      "createdAt": "2026-07-29T18:29:26.442Z"
+    },
+    {
+      "id": 2,
+      "name": "Noman",
+      "email": "nomanah3363@gmail.com",
+      "passwordHash": "$2b$10$AjZczyt4PBzmsMMpzEbf5e5ikbh/1I.dC3a.P0oROZqoteOKzEPLe",
+      "createdAt": "2026-07-29T19:57:03.813Z"
+    }
+  ],
+  "resumes": [
+    {
+      "id": 1,
+      "userId": 2,
+      "fileName": "Noman Ahmed.pdf",
+      "filePath": "C:\\Users\\User\\Desktop\\ai-resume-analyzer\\Uploads\\1785355064222-895823927-Noman_Ahmed.pdf",
+      "uploadedAt": "2026-07-29T19:57:44.275Z"
+    }
+  ],
+  "analyses": [
+    {
+      "id": 1,
+      "resumeId": 1,
+      "score": 67,
+      "strengths": "[\"Substantial document length (~4797 words) detailing technical background\",\"Verified email contact address (nomanahmed0412@gmail.com)\",\"Valid candidate contact phone number present\",\"Professional portfolio / LinkedIn / GitHub links included\",\"Core tech competencies detected: Backend (C#), Database (SQL), Testing (QA)\"]",
+      "weaknesses": "[\"Bullet points rely on passive phrases; missing strong action verbs like \\\"Architected\\\" or \\\"Spearheaded\\\"\"]",
+      "missingSkills": "[]",
+      "suggestions": "[\"Tailor ATS target keywords in Noman Ahmed for specific target position titles\",\"Begin every work experience bullet with a compelling past-tense action verb\"]",
+      "jobDescription": "",
+      "matchingKeywords": "[\"C#\",\"SQL\",\"Git\",\"JWT\"]",
+      "missingKeywords": "[]",
+      "jdMatchScore": 100,
+      "createdAt": "2026-07-29T19:57:48.444Z"
+    }
+  ],
+  "nextUserId": 3,
+  "nextResumeId": 2,
+  "nextAnalysisId": 2
+}
