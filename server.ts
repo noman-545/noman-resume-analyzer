@@ -1,3 +1,4 @@
+import cors from 'cors';
 import 'dotenv/config';
 import express from 'express';
 import path from 'path';
@@ -21,6 +22,15 @@ import { swaggerSpec } from './server/swaggerSpec.js';
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+app.use(
+  cors({
+    origin: [
+      'https://noman-resume-analyzer.vercel.app',
+      'http://localhost:5173',
+    ],
+    credentials: true,
+  })
+);
 // Ensure Uploads directory exists
 const UPLOADS_DIR = path.join(process.cwd(), 'Uploads');
 if (!fs.existsSync(UPLOADS_DIR)) {
