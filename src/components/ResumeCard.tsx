@@ -3,6 +3,10 @@ import { Resume, Analysis } from '../types';
 import { FileText, Sparkles, Trash2, Eye, Calendar, RefreshCw, Download, AlertTriangle, Check, X } from 'lucide-react';
 import { getStoredToken } from '../services/api';
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  'https://noman-resume-analyzer.onrender.com';
+
 interface ResumeCardProps {
   resume: Resume;
   analysis: Analysis | null;
