@@ -45,30 +45,48 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
   };
 
   const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      const token = getStoredToken();
-      const res = await fetch(`/api/resume/${resume.id}?download=true`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) {
-        throw new Error('Failed to download resume file');
+  setDownloading(true);
+
+  try {
+    const token = getStoredToken();
+
+    const response = await fetch(
+      `${API_BASE}/api/resume/${resume.id}?download=true`,
+      {
+        headers: token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : {},
       }
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = resume.fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
-    } catch (err: any) {
-      alert(`Download failed: ${err.message}`);
-    } finally {
-      setDownloading(false);
+    );
+
+    if (!response.ok) {
+      throw new Error(`Download failed (${response.status})`);
     }
-  };
+
+    const blob = await response.blob();
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+
+    link.href = downloadUrl;
+    link.download = resume.fileName;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (err: any) {
+    alert(err.message || 'Failed to download resume.');
+  } finally {
+    setDownloading(false);
+  }
+};
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-emerald-300 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 border-emerald-500/40 shadow-xs shadow-emerald-500/20';
