@@ -434,18 +434,23 @@ app.get('/api/resume/:id', authenticateJwt, (req: AuthenticatedRequest, res) => 
       return;
     }
 
-    if (req.query.download === 'true') {
-      if (fs.existsSync(resume.filePath)) {
-        res.download(resume.filePath, resume.fileName);
-        return;
-      }
-    }
-
-    res.json({
-      id: resume.id,
-      fileName: resume.fileName,
-      uploaded: resume.uploadedAt.split('T')[0],
+ if (req.query.download === 'true') {
+  if (!fs.existsSync(resume.filePath)) {
+    return res.status(404).json({
+      success: false,
+      message: 'Resume PDF file not found on server',
+      path: resume.filePath,
     });
+  }
+
+  return res.download(resume.filePath, resume.fileName);
+}
+
+res.json({
+  id: resume.id,
+  fileName: resume.fileName,
+  uploaded: resume.uploadedAt.split('T')[0],
+});
   } catch (err: any) {
     res.status(500).json({
       success: false,
